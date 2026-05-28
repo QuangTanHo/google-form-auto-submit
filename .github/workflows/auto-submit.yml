@@ -2,23 +2,20 @@ name: Auto Submit Google Form
 
 on:
   schedule:
-    # === CHECKIN (giờ VN - 7 = UTC) ===
-    - cron: '30 13 * * 1'  # Thứ 2: 20:30 VN
-    - cron: '31 13 * * 2'  # Thứ 3: 20:31 VN
-    - cron: '29 13 * * 3'  # Thứ 4: 20:29 VN
-    - cron: '25 13 * * 4'  # Thứ 5: 20:25 VN
-    - cron: '25 13 * * 5'  # Thứ 6: 20:25 VN
-    # === CHECKOUT ===
-    - cron: '0 18 * * 1'   # Thứ 2: 01:00 VN (sang hôm sau)
-    - cron: '1 18 * * 2'   # Thứ 3: 01:01 VN (sang hôm sau)
-    - cron: '59 17 * * 3'  # Thứ 4: 00:59 VN (sang hôm sau)
-    - cron: '10 18 * * 4'  # Thứ 5: 01:10 VN (sang hôm sau)
-    - cron: '3 6 * * 5'    # Thứ 6: 13:03 VN
-
+    - cron: '30 13 * * 1'
+    - cron: '31 13 * * 2'
+    - cron: '29 13 * * 3'
+    - cron: '25 13 * * 4'
+    - cron: '25 13 * * 5'
+    - cron: '0 18 * * 1'
+    - cron: '1 18 * * 2'
+    - cron: '59 17 * * 3'
+    - cron: '10 18 * * 4'
+    - cron: '3 6 * * 5'
   workflow_dispatch:
     inputs:
       type:
-        description: 'checkin hoặc checkout'
+        description: 'checkin or checkout'
         required: true
         type: choice
         options:
@@ -28,27 +25,19 @@ on:
 jobs:
   submit:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Write config from secret
-        run: echo '${{ secrets.FORM_CONFIG }}' > config.json
-
-      - name: Determine action type
+          node-version: '24'
+      - run: npm install
+      - run: echo '${{ secrets.FORM_CONFIG }}' > config.json
+      - name: Determine type
         id: type
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "type=${{ github.event.inputs.type }}" >> $GITHUB_OUTPUT
           else
-            # Checkin chạy lúc 13:xx UTC, checkout chạy lúc khác
             HOUR=$(date -u +%H)
             if [ "$HOUR" = "13" ]; then
               echo "type=checkin" >> $GITHUB_OUTPUT
@@ -56,6 +45,4 @@ jobs:
               echo "type=checkout" >> $GITHUB_OUTPUT
             fi
           fi
-
-      - name: Submit form
-        run: node cli.js --type=${{ steps.type.outputs.type }}
+      - run: node cli.js --type=${{ steps.type.outputs.type }}
