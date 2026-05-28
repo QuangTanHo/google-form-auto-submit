@@ -1,0 +1,16 @@
+{
+  "name": "google-form-auto-submit",
+  "version": "1.0.0",
+  "description": "Auto submit Google Forms on a schedule",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "submit": "node cli.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3"
+  }
+}
